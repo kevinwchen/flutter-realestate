@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_realestate/components/avatar.dart';
 import 'package:flutter_realestate/main.dart';
 
 class AccountPage extends StatefulWidget {
@@ -11,6 +12,7 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final _usernameController = TextEditingController();
   final _websiteController = TextEditingController();
+  String? _imageUrl;
 
   @override
   void initState() {
@@ -33,6 +35,7 @@ class _AccountPageState extends State<AccountPage> {
     setState(() {
       _usernameController.text = data['username'];
       _websiteController.text = data['website'];
+      _imageUrl = data['avatar_url'];
     });
   }
 
@@ -43,6 +46,20 @@ class _AccountPageState extends State<AccountPage> {
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
+          Avatar(
+              imageUrl: _imageUrl,
+              onUpload: (imageUrl) async {
+                setState(() {
+                  _imageUrl = imageUrl;
+                });
+                final userId = supabase.auth.currentUser!.id;
+                await supabase
+                    .from('profiles')
+                    .update({'avatar_url': imageUrl}).eq('id', userId);
+              }),
+          const SizedBox(
+            height: 12,
+          ),
           TextFormField(
             controller: _usernameController,
             decoration: const InputDecoration(
